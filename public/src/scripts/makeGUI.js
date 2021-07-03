@@ -1,3 +1,4 @@
+const fetchedHistory = {};
 function makePerson(username)
 {
     var person = document.createElement('div');
@@ -95,7 +96,7 @@ function sendMessage(button)
             type:'text',
             timeStamp:Date.now()
         }
-        addMessage(message.value.trim(),'sent');
+        addMessage(messagePayload,'sent');
         socket.emit('sendMessage',messagePayload)
         message.value ="";
     }
@@ -113,6 +114,7 @@ function changeChat(username)
     Thumbnail.src = "/src/img/friend-request.png";
 
     var name = document.createElement('h3');
+    name.id = 'chatname';
     name.innerHTML = username;
     
     var chatId = document.createElement('p');
@@ -155,6 +157,10 @@ function changeChat(username)
     chatContainer.appendChild(sendBar);
     chatContainer.appendChild(chatId);
 
+    if(!fetchedHistory[username]){
+        const myUserName = document.getElementById('myusername').innerHTML;
+        socket.emit('fetchHistory',{user:myUserName,friend:username});
+    }
 }
 function makeMessage(message,type)
 {
@@ -186,14 +192,16 @@ function addMessage(message,type)
     var chat = document.getElementById('chat');
     if(chat)
     {
-        var message = makeMessage(message,type);
-        chat.appendChild(message);
+        var msg = makeMessage(message.payload,type);
+        chat.appendChild(msg);
         chat.scrollTo(0,chat.scrollHeight)
     }
     else
     {
         alert("Chat is not selected");
     }
+    const chatName = document.getElementById('chatname').innerHTML;
+    document.getElementById(chatName + "_last_message").innerHTML = message.payload;
 }
 function makeContact(username)
 {
@@ -221,6 +229,7 @@ function makeContact(username)
 
     var contactUserMsg = document.createElement('li');
     contactUserMsg.classList.add('contactUserMsg');
+    contactUserMsg.id = username + "_last_message";
     contactUserMsg.innerHTML = "Last Message";
 
     contactPic.appendChild(contactStatus)
@@ -243,12 +252,10 @@ function addContact(username){
 function addPerson(username){
     var people = document.getElementById('peopleList');
     var person = makePerson(username);
-    console.log("Made person" + person);
     people.appendChild(person);
 }
 function addRequest(username)
 {
-    console.log("Request Added :" + username)
     var requests = document.getElementById('requestList');
     requests.appendChild(makeRequest(username));
 }
@@ -268,13 +275,11 @@ function sendRequest(btn)
 {
     var user = btn.parentNode.childNodes[1].textContent;
     btn.textContent = "Sent!"
-    console.log(username);
     socket.emit('sendReq',{from:username,to:user});
 }
 function acceptRequest(btn)
 {
     btn.textContent = "Accepted";
     var user = btn.parentNode.childNodes[1].textContent;
-    console.log(username);
     socket.emit('acceptReq',{from:username,to:user});
 }

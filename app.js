@@ -26,7 +26,6 @@ io.on('connect',(socket) =>
         },{new:true})
         .then(result =>
         {
-            // console.log(result.username + "logged out....");
             socket.broadcast.emit('receiveStatus',{
                 username:result.username,
                 changedStatus:"offline"
@@ -34,13 +33,10 @@ io.on('connect',(socket) =>
         })
         .catch(err => console.log(err));
     });
-    socket.on("newLogin",(user) =>
+    socket.on("newLogin",async (user) =>
     {
-        Sockets.findOneAndUpdate({username:user},{
+        await Sockets.findOneAndUpdate({username:user},{
             $set:{socketID:socket.id,active:true}
-        }).then((data) =>
-        {
-            console.log(`USER: ${data}  socket allocation finished`);
         })
         socket.broadcast.emit('receiveStatus',{
             username:user,
@@ -53,9 +49,6 @@ io.on('connect',(socket) =>
             var userInfo =  await Users.findOne({"username":user});
             var peopleList =await Users.find({});
             peopleList = await  peopleList.map(person => person.username).filter(p => [...friendList.friends].indexOf(p) == -1 && p != user);
-            /*
-            peopleList = peopleList.map(person => person.username);
-            peopleList = peopleList.filter(person =>friendList.friends.indexof(person) == -1)*/
             if(friendList)
             {
                 socket.emit('makeGUI',userInfo);
@@ -63,33 +56,54 @@ io.on('connect',(socket) =>
                 socket.emit('receiveRequests',requestList.requests);
                 socket.emit('receivePeople',peopleList);
             }
-            /*
-            console.log("friendList to user",friendList.friends);
-            console.log("requestList to user",requestList.requests);
-            console.log("peopleList to user",peopleList);
-            console.log("Sendingself to user",userInfo);
-            */
         })();
     });
     socket.on('sendMessage', async (message) =>
     {
-        // console.log(message);
-        const msg = Messages({...message});
-        const result = await Histories.findOne({$and:[{"username":message.to},{"history.username":message.from}]});
-        if(!result)
-        {
-            const chat = Chats({username:message.from,messages:[msg]});
-            await Histories.findOneAndUpdate({"username":message.to},{$push:{
-                "history":chat
-            }})
+        const historyTo = await Histories.findOne({username:message.to}).populate({path:'histories',select:'username messages'});
+        const historyFrom = await Histories.findOne({username:message.from}).populate({path:'histories',select:'username messages'});
+        
+        var chatTo = await Histories.findOne({username:message.to}).populate({path:'histories',select:'user friend historyID'});
+        var chatFrom =  await Histories.findOne({username:message.from}).populate({path:'histories',select:'user friend historyID'});
+        
+        var chatToId = await Chats.findOne({$and:[{user : message.from},  {friend : message.to}]});
+        var chatFromId = await Chats.findOne({$and:[{user : message.to},  {friend : message.from}]});
+
+        // MAKE NEW CHAT IN DATABASE IF NOT EXIXTS
+        if(!chatToId && !chatFromId ){
+            chatTo = Chats({user:message.to, friend:message.from});
+            chatTo.historyID = historyFrom._id;
+            await chatTo.save();
+            historyFrom.history.push(chatTo);
+            
+            chatFrom = Chats({user:message.from, friend:message.to});
+            chatFrom.historyID = historyTo._id;
+            await chatFrom.save();
+            historyTo.history.push(chatFrom);
         }
-        else
-        {
-            // const obj =  await Histories.findOne({$and:[{"username":message.to},{"history.username":message.from}]});
-            // obj.history.filter(h => h.username == message.from )[0].messages.push(msg);
-            // obj.save(done);
-            console.log("------------------------PUSHED------------------------");
+        else{
+            chatTo = await Chats.findById({_id:chatToId._id});
+            chatFrom = await Chats.findById({_id:chatFromId._id});
         }
+        // STORE MESSAGE OBJ IN DATABASE
+        const msgTo = Messages({...message});
+        msgTo.chatID = chatTo._id;
+        const msgFrom = Messages({...message});
+        msgFrom.chatID = chatFrom._id;
+        
+        // LINKING MESSAGES TO CHATS
+        await msgTo.save();
+        await msgFrom.save();
+
+        chatTo.messages.push(msgTo);
+        chatFrom.messages.push(msgFrom);
+        
+        // SAVING ALL THE CHANGES TO DATABASE
+        await chatTo.save();
+        await chatFrom.save();
+        await historyTo.save();
+        await historyFrom.save();
+        
         socket.broadcast.emit('receiveMessage',message);
     })
     
@@ -107,23 +121,25 @@ io.on('connect',(socket) =>
         .then(result=>
         {
             Sockets.findOne({username:frndReqest.to}).select({socketID:1}).then(res=>{
-                console.log("Rsult FRMO receiveRequests " , res);
                 if(res.socketID != "None")
-                    io.to(res.socketID).emit('receiveRequests',[frndReqest]);
+                    io.to(res.socketID).emit('receiveRequests',[frndReqest.from]);
             });
-            console.log("MAIN RESULT",result);
         });
     })
-    socket.on('acceptReq',frndReqest=>{
-        Friends.findOneAndUpdate({"username":frndReqest.from},{
+    socket.on('fetchHistory', async (payload) => {
+        var chat = await Chats.findOne({$and:[{user : payload.user},  {friend : payload.friend}]})
+        .populate({
+            path:'messages',
+            select:'to from payload type timeStamp'
+        });
+        socket.emit('recieveHistory',chat);
+    })
+    socket.on('acceptReq',async (frndReqest)=>{
+        await Friends.findOneAndUpdate({"username":frndReqest.from},{
             $addToSet:{
             friends:frndReqest.to
             }
-        },{new:true})
-        .then(data =>
-        {
-            console.log("Request accepted one side...");
-        });
+        },{new:true});
         Friends.findOneAndUpdate({"username":frndReqest.to},{
             $addToSet:{
             friends:frndReqest.from
@@ -131,40 +147,18 @@ io.on('connect',(socket) =>
         },{new:true})
         .then(result=>
         {
-            console.log("Request accepted other side...");
             // Add person to the conatact list of both parties...
             Sockets.findOne({username:frndReqest.to}).select({socketID:1}).then(res=>{
-                console.log("Rsult FRMO acceptReq" , res);
                 if(res.socketID != "None")
                     io.to(res.socketID).emit('receiveContacts',[frndReqest.from]);
             });
             
             Sockets.findOne({username:frndReqest.from}).select({socketID:1}).then(res=>{
-                console.log("Rsult FRMO acceptReq" , res);
                 if(res.socketID != "None")
                     io.to(res.socketID).emit('receiveContacts',[frndReqest.to]);
             });
-            console.log("MAIN RESULT",result);
         });
     });
-    /*
-    socket.on('',frndReqest=>{
-        Friends.findOneAndUpdate({"username":frndReqest.to},{
-            $addToSet:{
-            requests:frndReqest.from
-            }
-        },{new:true})
-        .then(result=>
-        {
-            console.log(result);
-        });
-    })
-    /*socket.on('changeStatus',status)
-    {
-        socket.broadcast.emit('userChangeStatus',status);
-    }*/
-    console.log("Socket is now connected");
-    
 })
 
 

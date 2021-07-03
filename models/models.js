@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+mongoose.set('useCreateIndex', true);
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -84,20 +85,44 @@ const messageSchema = new Schema({
             return this.type != "text"
         }
     },
+    chatID:{
+        type:Schema.Types.ObjectId,
+        ref:'Chat'
+    },
     timeStamp:
     {
         type:Date,
         default:Date.now
     }
 });
-
+    
 const chatSchema = new Schema({
-    username:{
+    user:{
         type:String,
         required:true,
     },
-    messages: [messageSchema] 
+    friend:{
+        type:String,
+        required:true,
+    },
+    messages: [{
+        type:Schema.Types.ObjectId,
+        required:true,
+        ref:'Message'
+    }],
+    historyID:{
+        type:Schema.Types.ObjectId,
+        ref:'History'
+    } 
 });
+
+chatSchema.virtual('chats',{
+    ref:'Message',
+    localField: '_id', 
+    foreignField: 'chatID'
+});
+chatSchema.set('toObject', { virtuals: true });
+chatSchema.set('toJSON', { virtuals: true });
 
 const historySchema = new Schema(
 {
@@ -105,15 +130,23 @@ const historySchema = new Schema(
         type:String,
         required:true
     },
-    history:{
-        type:[chatSchema],
-        default: []
-    }
+    history:[{
+            type:Schema.Types.ObjectId,
+            ref:'Chat',
+            required:true
+    }]
 },
 {
     timestamps:true
 });
 
+historySchema.virtual('histories',{
+    ref:'Chat',
+    localField: '_id', 
+    foreignField: 'historyID'
+});
+historySchema.set('toObject', { virtuals: true });
+historySchema.set('toJSON', { virtuals: true });
 
 const friendSchema = new Schema({
     username:{
@@ -134,7 +167,7 @@ const friendSchema = new Schema({
     timestamps:true
 });
     
-    
+
 exports.Users = mongoose.model('User',userSchema);
 exports.Sockets = mongoose.model('Socket',socketSchema);
 exports.Messages = mongoose.model('Message',messageSchema);

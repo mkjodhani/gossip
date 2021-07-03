@@ -53,6 +53,7 @@
                     </div>
                     <div class="username">
                         <h3 style="color: aliceblue;" id="myname">Mayur Jodhani</h3>
+                        <p style="display: none;" id="myusername"></p>
                         <!-- <a href="#"><p style="color: aliceblue;">Edit</p></a> -->
                     </div> 
                 </div>
@@ -123,7 +124,6 @@
         window.onload = ()=>
         {
             username = getCoockie('username');
-            console.log("New LogIn" + username);
             socket.emit('newLogin',username);
         }
         function getCoockie(name)

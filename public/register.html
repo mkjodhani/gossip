@@ -80,63 +80,40 @@
                     </div>
                 </div>
             </form>
-        </main>
-        <script>
-            function validate(input)
+        </div>
+    </main>
+    <script>
+        function validate(input)
+        {
+            var ele  = input.checkValidity();
+            if(ele)
             {
-                var ele  = input.checkValidity();
-                if(ele)
-                {
-                    input.parentNode.parentNode.getElementsByClassName('next')[0].classList.add('OKShow');
-                }
-                else{
-                    input.parentNode.parentNode.getElementsByClassName('next')[0].classList.remove('OKShow');
-                }
+                input.parentNode.parentNode.getElementsByClassName('next')[0].classList.add('OKShow');
             }
+            else{
+                input.parentNode.parentNode.getElementsByClassName('next')[0].classList.remove('OKShow');
+            }
+        }
 
-            function nextRow(button,event)
-            {
-                if(button.id != "submitBtn")
-                {
-                    event.preventDefault();
-                    button.parentNode.parentNode.classList.remove('showRow');
-                    console.log(button.parentNode.parentNode.nextElementSibling.classList.add('showRow'));
-                }
-                else
-                {
-                    document.getElementById("form").submit();
-                }
-            }
-            document.onload = function()
-            {
-                username = document.getElementById("username").value = ""
-                document.getElementById("psw").value = "";
-                document.getElementById("psw-repeat").value = "";
-            }
-            function imagePrint(data)
-            {
-            console.log(data);
-        }
-        function readURL(input)
+        function nextRow(button,event)
         {
-            if(input.files && input.files[0])
+            if(button.id != "submitBtn")
             {
-                var reader =new  FileReader();
-                reader.onload  = function(event)
-                {
-                    imagePrint(event.target.result)
-                }
-                reader.readAsDataURL(input.files[0]);
+                event.preventDefault();
+                button.parentNode.parentNode.classList.remove('showRow');
+                button.parentNode.parentNode.nextElementSibling.classList.add('showRow');
+            }
+            else
+            {
+                document.getElementById("form").submit();
             }
         }
-        $('#image').on('change',function()
+        document.onload = function()
         {
-            readURL(this);
-        })
-        $('#imageBtn').on('click', (event) => 
-        {
-            $('#image').click();
-        });
+            username = document.getElementById("username").value = ""
+            document.getElementById("psw").value = "";
+            document.getElementById("psw-repeat").value = "";
+        }
         
         $("#submitBtn").on('click',function(event)
         {
@@ -153,6 +130,6 @@
                 $('#form').submit();
             }
         });
-   </script>
+    </script>
 </body>
 </html>
