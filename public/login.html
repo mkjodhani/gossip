@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link rel="stylesheet" href="./src/css/register.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <div class="pattern"></div>
+            <form action="/user/login" id="form" method="POST">
+                <div class="row showRow">
+                    <div class="label">
+                        <h1>Username</h1>
+                    </div>
+                    <div class="input">
+                        <input type="text" id="username" name="username" oninput="validate(this)" pattern="^[a-zA-Z]+$" required autocomplete="off">
+                    </div>
+                    <div>
+                        <button class="next" onclick="nextRow(this,event)">OK &check;</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="label">
+                        <h1>Enter The password...</h1>
+                    </div>
+                    <div class="input">
+                        <input type="password" id="psw" name="psw" oninput="validate(this)" min="6" required autocomplete="off">
+                    </div>
+                    <div>
+                        <button class="next" id="submitBtn" onclick="nextRow(this,event)">Log In </button>
+                    </div>
+                </div>
+            </form>
+        </main>
+        <script>
+            function validate(input)
+            {
+                var ele  = input.checkValidity();
+                if(ele)
+                {
+                    console.log( input.parentNode.parentNode.getElementsByClassName('next')[0].classList.add('OKShow'));
+                }
+                else{
+                    console.log( input.parentNode.parentNode.getElementsByClassName('next')[0].classList.remove('OKShow'));
+                }
+            }
+
+            function nextRow(button,event)
+            {
+                if(button.id != "submitBtn")
+                {
+                    event.preventDefault();
+                    button.parentNode.parentNode.classList.remove('showRow');
+                    console.log(button.parentNode.parentNode.nextElementSibling.classList.add('showRow'));
+                }
+                else
+                {
+                    document.getElementById("form").submit();
+                }
+            }
+            document.onload = function()
+            {
+                username = document.getElementById("username").value = ""
+                document.getElementById("psw").value = "";
+            }
+            function imagePrint(data)
+            {
+            console.log(data);
+        }
+        function readURL(input)
+        {
+            if(input.files && input.files[0])
+            {
+                var reader =new  FileReader();
+                reader.onload  = function(event)
+                {
+                    imagePrint(event.target.result)
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $('#image').on('change',function()
+        {
+            readURL(this);
+        })
+        $('#imageBtn').on('click', (event) => 
+        {
+            $('#image').click();
+        });
+        
+        $("#submitBtn").on('click',function(event)
+        {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("psw").value;
+            
+            if(username.trim() && password.trim())
+            {
+                $('#form').submit();
+            }
+            else
+            {
+                alert("Enter the same password");
+                return false;
+            }
+        });
+   </script>
+</body>
+</html>

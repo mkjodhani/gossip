@@ -1,0 +1,471 @@
+body
+{
+    background-color: #27AE60;
+}
+main{
+    width: 75%;
+    height: 90vh;
+    background-color: #E6EAEA;
+    display: flex;
+    margin: 2.5% auto;
+}
+main nav
+{
+    width: 30%;
+    height: 100%;
+    background-color: #2C3E50;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.profile 
+{
+    width: 90%;
+    margin: 5% auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.leftProfile
+{
+    float: left;
+    width: 90%;
+    height: 5%;
+    display:flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+@keyframes statusTypeAnime 
+{
+    0%{
+        height: 0%;
+    }
+
+    100%{
+        height: 100%;
+    }
+
+}
+
+.statusTypes
+{
+    width: 100%;
+    margin: 0 auto;
+    list-style: none;
+    line-height: 1.2em;
+    animation: statusTypeAnime 1s ;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    animation-fill-mode: forwards;
+    height: fit-content;
+    display: none;
+
+}
+@keyframes arrowUpAnime {
+    0%{
+        transform: rotate(0);
+    }
+    100%{
+        transform: rotate(180deg);
+    }
+}
+.arrowUp
+{
+    animation: arrowUpAnime 1s ;
+    animation-fill-mode:forwards;
+}
+.type
+{
+    width: 50%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.Status
+{
+    min-width: 15px;
+    min-height: 15px;
+    border-radius: 50%;
+    z-index: 3;
+    background-color: thistle;
+}
+.type p{
+    color: white;
+}
+.busyBorder
+{
+    border: 3px solid #E74C3C;
+    border-radius: 50%;
+}
+.onlineBorder
+{
+    border-radius: 50%;
+    border: 3px solid #2ECC71;
+}
+.awayBorder
+{
+    border-radius: 50%;
+    border: 3px solid #F1C40F;
+}
+.offlineBorder
+{
+    border-radius: 50%;
+    border: 3px solid #95A5A6;
+}
+.username
+{
+    margin-left: 10px;
+}
+
+.arrow
+{
+    cursor: pointer;
+}
+.serachLine
+{
+    width: 95%;
+    margin: auto 2%;
+    display: flex;
+    align-items: center;
+    background-color: #32465A;
+    justify-content: space-evenly;
+}
+.searchText
+{
+    font-size: medium;
+    background-color: transparent;
+    border: none;
+    width: 80%;
+    padding: 1% 5%;
+    margin: 0% 2%;
+    height: 2em;
+    flex-grow: inherit;
+    color: #828E9A;
+}
+
+.contacts
+{
+    width: 100%;
+    margin: 2% 0.5%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100%;
+    max-height: 75%;
+    flex-shrink: inherit;
+    flex-grow: inherit;
+}
+.contact
+{
+    width: 95%;
+    max-height: 50px;
+    display: flex;
+    margin-bottom: 2.5%;
+    padding: 5px;
+    border-right: 5px solid #435F7A;
+    overflow: hidden;
+}
+.contact:hover ,.type:hover{
+    background-color: #435f7a;
+    cursor: pointer;
+}
+.contactPic
+{
+    position: relative;
+}
+.contactStatus
+{
+    position: absolute;
+    left: 0;
+    top: 0;
+    min-width: 15px;
+    min-height: 15px;
+    border-radius: 50%;
+    z-index: 3;
+}
+.online
+{
+    background-color: #2ECC71;
+}
+.offline
+{
+    background-color: #95A5A6;
+}
+.away
+{
+    background-color: #F1C40F;
+}
+.busy
+{
+    background-color: #E74C3C;
+}
+
+.contactMeta
+{
+    margin: 0 0 ;
+    padding: 0 0;
+    list-style: none;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    color: white;
+}
+.contactUserName
+{
+    font-weight:900;
+}
+.contactUserMsg
+{
+    text-align: left;
+    max-height: 1.1em;
+    overflow-x: hidden;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navButton
+{
+    width: 100%;
+    position: absolute;
+    bottom: 0%;
+    background-color: #2C3E50;
+    display: flex;
+    position: absolute;
+    z-index: 10;
+}
+.navButton button:hover
+{
+    background-color: #435f7a;
+}
+.navButton button
+{
+    width: 50%;
+    font-weight: 900;
+    border: none;
+    height: 2em;
+    color: white;
+    background-color: transparent;
+    cursor: pointer;
+    margin: 5px;
+}
+.rightProfile
+{
+    float: right;
+}
+
+main section
+{
+    width: 70%;
+}
+.chatHeader
+{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: row;
+    background-color: #F5F5F5;
+}
+.chatHeaderLeft ,.chatHeaderRight
+{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+}
+.Thumbnail
+{
+    padding: 0 15px 0 5px;
+    width: 40px;
+}
+.chat
+{
+    background-color: #E6EAEA;
+    overflow-y: scroll;
+    flex: auto;    
+    padding: 1%;
+    margin-bottom: 35px;
+}
+.chatThumbnail
+{
+    padding: 0 15px 0 5px;
+    width: 30px;
+}
+.messageBox
+{
+    width: 100%;
+    margin: 0 0;
+    display: flex;
+    align-items: center;
+}
+.sent 
+{
+    float: right;
+}
+.received 
+{
+    float: left;
+}
+.messageBox p
+{
+    border-radius: 20px;
+    display: inline-block;
+    padding: 4px 15px;
+    border-radius: 20px;
+    line-height: 130%;
+    max-width: 65%;
+}
+.sent p
+{
+    background-color: #F5F5F5;
+}
+
+.received p
+{
+    background-color: #435F7A;
+}
+.sent 
+{
+    justify-content: flex-end;
+}
+.sendBar
+{
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    z-index: 99;
+    background-color: #E6EAEA;
+
+}
+.sendBar button
+{
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    height: 100%;
+    background-color: #E6EAEA;
+}
+.sendBar input
+{
+    float: left;
+    border: none;
+    width: calc(100% - 140px);
+    padding: 11px 32px 10px 8px;
+    font-size: 0.8em;
+    color: #32465a;
+}
+button img
+{
+    width: 30px;
+}
+#send img
+{
+    /*transform: rotate(45deg);*/
+}
+section
+{
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    flex: 1 auto 1;
+}
+
+
+
+
+
+
+
+
+/*****
+
+Add freind request
+
+*/
+.searchBar
+{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    min-width: fit-content;
+    height: 10%;
+}
+.request
+{
+    width: 80%;
+    margin: 2px auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+@keyframes requestAnime {
+    from {top: -50vh;}
+    to {top: 25vh;}
+  }
+
+.requests
+{
+    position: absolute;
+    top: 25vh;
+    left: 25vw;
+    background-color: #2C3E50;
+    width: 35vw;
+    max-width: 40vw;
+    height: 50vh;
+    margin: 0 auto;
+    z-index: 500;
+    animation: requestAnime 0.5s ;
+    animation-fill-mode: forwards;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    align-items: center;
+    display: none;
+}
+.requestList ,.peopleList
+{
+    height: 90%;
+    background-color: #F5F5F5;
+    width: 100%;
+    overflow-y: scroll;
+}
+
+
+/*-------------------Seach People-----------------------*/
+.allPeople
+{
+    position: absolute;
+    top: 25vh;
+    left: 25vw;
+    background-color: #2C3E50;
+    max-width: 40vw;
+    width: 35vw;
+    min-width: fit-content;
+    height: 50vh;
+    margin: 0 auto;
+    z-index: 500;
+    animation: requestAnime 0.5s ;
+    animation-fill-mode: forwards;
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: column;
+    align-items: center;
+    display: none;
+}
+.userBox
+{
+    width: 95%;
+    margin:  5px auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.requestBtn
+{
+    margin-left: auto;
+    height: 2.5em;
+    width: 20vh;
+}

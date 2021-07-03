@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gossip</title>
+    <link rel="stylesheet" href="/src/css/index.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/src/scripts/makeGUI.js"></script>
+    <script src="/src/scripts/socketHandler.js"></script>
+</head>
+<body>
+    <div class="requests" id="requests">
+        <div class="searchBar">
+            <input type="text" name="username" id="searchFriend" required placeholder="Enter The Username">
+            <input type="submit" value="Search">
+            <button id="close" onclick="closes(this)">Close</button>
+        </div>
+        <div class="requestList" id="requestList">
+            <!--<div class="request" id="username_request">
+                <img src="/src/img/friend-request.png" alt="" width="40px" height="40px" class="Thumbnail">
+                <h3 class="contactUserName">Krushit</h3>
+                <button onclick="acceptRequest(this)" class="requestBtn">Accept</button>
+            </div>
+            -->
+        </div>
+    </div>
+    <div class="allPeople" id="allPeople">
+        <div class="searchBar">
+            <input type="text" name="username" id="searchFriend" required placeholder="Enter The Username">
+            <input type="submit" value="Search">
+            <button id="close" onclick="closes(this)">Close</button>
+        </div>
+        <div class="peopleList" id="peopleList">
+            <!--
+            <div class="userBox" id="username_people">
+                <img src="/src/img/friend-request.png" alt="" width="40px" height="40px" class="Thumbnail">
+                <h3 class="contactUserName">Krushit</h3>
+                <button onclick="sendRequest(this)" class="requestBtn">Send</button>
+            </div>
+            -->
+        </div>
+    </div>
+    
+    <main>
+        <nav>
+            <div class="profile">
+                <div class="leftProfile">
+                    <div class="profilePic">
+                        <img src="/src/img/friend-request.png" alt="" width="50px" height="50px" class="busyBorder" id="statusBorder">
+                    </div>
+                    <div class="username">
+                        <h3 style="color: aliceblue;" id="myname">Mayur Jodhani</h3>
+                        <!-- <a href="#"><p style="color: aliceblue;">Edit</p></a> -->
+                    </div> 
+                </div>
+                <div class="rightProfile">
+                    <div class="tray">
+                        <img src="/src/img/down-arrow.svg" alt="" width="20px" height="20px" class="arrow" id="downArrow" onclick="showTypes(this)">
+                    </div>
+                </div>
+            </div>
+            <div class="statusTypes" id="typeBox">
+                <div class="type"  onclick="setStatus(`online`)">
+                    <h1 class="Status online"></h1>
+                    <p>Online</p>
+                </div>
+                <div class="type"  onclick="setStatus(`offline`)">
+                    <h1 class="Status offline"></h1>
+                    <p>Offline</p></div>
+                <div class="type"  onclick="setStatus(`busy`)">
+                    <h1 class="Status busy"></h1>
+                    </span>
+                    <p>Busy</p></div>
+                <div class="type"  onclick="setStatus(`away`)">
+                    <h1 class="Status away"></h1>
+                    <p>Away</p></div>
+            </div>
+            <!-- <div class="serachLine">
+                <img src="/src/img/search.png" alt="" width="30px" height="30px">
+                <input type="text" placeholder="search contacts..." class="searchText">
+            </div> -->
+            <div class="contacts" id="contacts">
+                <!--
+                <div class="contact" id="mkjodhani_Contact" onclick="changeChat(`Krushit`)">
+                    <div class="contactPic">
+                        <span id="mkjodhani_Status" class="contactStatus busy"></span>
+                        <img src="/src/img/friend-request.png" alt="" width="40px" height="40px" class="Thumbnail">
+                    </div>
+                    <ul class="contactMeta">
+                        <li class="contactUserName">mkjodhani</li>
+                        <li class="contactUserMsg">Hey!</li>
+                    </ul>
+                </div>
+                <div class="contact" id="bhalani_Contact" onclick="changeChat(`Krushit`)">
+                    <div class="contactPic">
+                        <span id="bhalani_Status" class="contactStatus busy"></span>
+                        <img src="/src/img/friend-request.png" alt="" width="40px" height="40px" class="Thumbnail">
+                    </div>
+                    <ul class="contactMeta">
+                        <li class="contactUserName">bhalani</li>
+                        <li class="contactUserMsg">Hey!</li>
+                    </ul>
+                </div>
+                -->
+            </div>
+            <div class="navButton">
+                <button onclick="sendRequestBtn()">Friend Requests</button>
+                <button onclick="searchPeopleBtn()">Send Request</button>
+            </div>
+        </nav>
+        <section id="chatContainer">
+            <h3 style='text-align: center;margin: auto;'>No Chat Selected</h3>
+        </section>
+    </main>
+    <script>
+        var username ;
+        window.onclose = ()=>{
+            socket.emit('disconnect',username);
+        }
+        window.onload = ()=>
+        {
+            username = getCoockie('username');
+            console.log("New LogIn" + username);
+            socket.emit('newLogin',username);
+        }
+        function getCoockie(name)
+        {
+            var list = document.cookie.split(';');
+            for(var i in list)
+            {
+                if(list[i].split("=")[0].trim() === name)
+                {
+                    return list[i].split("=")[1];
+                }
+            }   
+        }
+</script>
+</body>
+</html>
