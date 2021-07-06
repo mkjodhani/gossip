@@ -1,4 +1,3 @@
-const fetchedHistory = {};
 function makePerson(username)
 {
     var person = document.createElement('div');
@@ -74,11 +73,11 @@ function setStatus(type)
     document.getElementById('downArrow').classList.toggle('down');
     socket.emit('sendStatus',
     {
-        username:"mkjodhani",
-        changedStatus:type
+        username:username,
+        status:type
     });
 }
-function sendDoc(button)
+function createVideoChat(button)
 {
     alert("This feature is not yet implemented.")
 }
@@ -99,10 +98,14 @@ function sendMessage(button)
         addMessage(messagePayload,'sent');
         socket.emit('sendMessage',messagePayload)
         message.value ="";
+        fetchedHistory[messagePayload.to].messages.push(messagePayload);
     }
 }
 function changeChat(username)
 {
+    const contact = document.getElementById(username +"_Contact");
+    contact.style.backgroundColor = 'transparent';    
+
     var chatHeader = document.createElement('header');
     chatHeader.classList.add('chatHeader');
 
@@ -130,8 +133,8 @@ function changeChat(username)
 
     var chatThumbnail = document.createElement('img');
     chatThumbnail.classList.add('chatThumbnail');
-    chatThumbnail.src = "/src/img/send.svg";            
-
+    chatThumbnail.src = "/src/img/video-chat.png";            
+    chatThumbnail.onclick = createVideoChat
     chatHeaderRight.appendChild(chatThumbnail);
 
     chatHeader.appendChild(chatHeaderLeft);
@@ -146,7 +149,6 @@ function changeChat(username)
 
 
     var sendBarHTML = `<input type="text" placeholder="Write your message..." id="inputMessage">
-<button id="attach"><img src="/src/img/paperclip.png" alt="" onclick="sendDoc(this)"></button>
 <button id="send"><img src="/src/img/send1.svg"  alt="" onclick="sendMessage(this)" ></button>`;
     sendBar.innerHTML = sendBarHTML.trim()
 
@@ -157,9 +159,13 @@ function changeChat(username)
     chatContainer.appendChild(sendBar);
     chatContainer.appendChild(chatId);
 
+    const myUserName = document.getElementById('myusername').innerHTML;
     if(!fetchedHistory[username]){
-        const myUserName = document.getElementById('myusername').innerHTML;
         socket.emit('fetchHistory',{user:myUserName,friend:username});
+    }
+    else{
+        InsertsChat(fetchedHistory[username],myUserName);
+        console.warn('catch loaded');
     }
 }
 function makeMessage(message,type)
@@ -190,14 +196,19 @@ function makeMessage(message,type)
 function addMessage(message,type)
 {
     var chat = document.getElementById('chat');
-    if(chat)
+    var from = message.from;
+    var openChatUser = document.getElementById('chatname').innerHTML;
+    if(chat && (openChatUser === from || type === 'sent'  ))
     {
         var msg = makeMessage(message.payload,type);
         chat.appendChild(msg);
         chat.scrollTo(0,chat.scrollHeight)
     }
-    else
+    else if(type === 'received')
     {
+        const contact = document.getElementById(from +"_Contact");
+        contact.style.backgroundColor = 'green'  
+        document.getElementById(from + "_last_message").innerHTML = message.payload;  
         alert("Chat is not selected");
     }
     const chatName = document.getElementById('chatname').innerHTML;
@@ -215,7 +226,8 @@ function makeContact(username)
     var contactStatus = document.createElement('span');
     contactStatus.id = username + "_Status";
     contactStatus.classList.add('contactStatus');
-
+    contactStatus.classList.add('busy');
+        
     var Thumbnail = document.createElement('img');
     Thumbnail.classList.add('Thumbnail');
     Thumbnail.src = "/src/img/friend-request.png";
@@ -241,7 +253,9 @@ function makeContact(username)
     contact.appendChild(contactPic);
     contact.appendChild(contactMeta);
     
-    contact.onclick = () =>{changeChat(username)};
+    contact.onclick = () =>{
+        changeChat(username)
+    };
     return contact;
 }
 function addContact(username){
@@ -282,4 +296,68 @@ function acceptRequest(btn)
     btn.textContent = "Accepted";
     var user = btn.parentNode.childNodes[1].textContent;
     socket.emit('acceptReq',{from:username,to:user});
+}
+function InsertsChat(chat,user)
+{
+    for(index in chat.messages){
+        const type = user === chat.messages[index].from?'sent':'received';
+        addMessage(chat.messages[index],type);
+    }
+}
+function makeProfile(userInfo){
+    
+    var profile = document.getElementById('profile')
+
+    var leftProfile = document.createElement('div');
+    leftProfile.classList.add('leftProfile');
+
+    var profilePic = document.createElement('div');
+    profilePic.classList.add('profilePic');
+    
+    var statusBorder = document.createElement('img');
+    statusBorder.src = "/src/img/friend-request.png" ;//userInfo.profilePic;
+    statusBorder.alt = "status";
+    statusBorder.width = "50"
+    statusBorder.height = "50"
+    statusBorder.classList.add('onlineBorder');
+    statusBorder.id = "statusBorder";
+
+    profilePic.appendChild(statusBorder);
+
+    var username = document.createElement('div');
+    username.classList.add('username');
+    
+    var myname = document.createElement('h3');
+    myname.id = "myname";
+    myname.style.color = "aliceblue";
+    myname.innerHTML = userInfo.firstName +" "+ userInfo.lastName;
+
+    var myusername = document.createElement('p');
+    myusername.id = "myusername";
+    myusername.innerHTML = userInfo.username;
+    myusername.style.display = "none";
+
+    username.append(myname,myusername);
+    leftProfile.append(profilePic,username);
+
+    var rightProfile = document.createElement('div');
+    rightProfile.classList.add('rightProfile');
+    
+    var tray = document.createElement('div');
+    tray.classList.add('tray');
+
+    var downArrow = document.createElement('img');
+    downArrow.src = "/src/img/down-arrow.svg";
+    downArrow.alt = "showStatusOptions";
+    downArrow.width = "20"
+    downArrow.height = "20"
+    downArrow.classList.add('arrow');
+    downArrow.id = "downArrow";
+    downArrow.onclick = () => {showTypes(downArrow)};
+
+    tray.appendChild(downArrow);
+    rightProfile.appendChild(tray);
+
+    profile.appendChild(leftProfile);
+    profile.appendChild(rightProfile)
 }

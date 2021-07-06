@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Log in</title>
     <link rel="stylesheet" href="./src/css/register.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
+
 <body>
     <main>
         <div class="container">
@@ -18,7 +20,8 @@
                         <h1>Username</h1>
                     </div>
                     <div class="input">
-                        <input type="text" id="username" name="username" oninput="validate(this)" pattern="^[a-zA-Z]+$" required autocomplete="off">
+                        <input type="text" id="username" name="username" oninput="validate(this)" pattern="^[a-zA-Z]+$"
+                            required autocomplete="off">
                     </div>
                     <div>
                         <button class="next" onclick="nextRow(this,event)">OK &check;</button>
@@ -29,7 +32,8 @@
                         <h1>Enter The password...</h1>
                     </div>
                     <div class="input">
-                        <input type="password" id="psw" name="psw" oninput="validate(this)" min="6" required autocomplete="off">
+                        <input type="password" id="psw" name="psw" oninput="validate(this)" min="6" required
+                            autocomplete="off">
                     </div>
                     <div>
                         <button class="next" id="submitBtn" onclick="nextRow(this,event)">Log In </button>
@@ -39,51 +43,43 @@
         </div>
     </main>
     <script>
-        function validate(input)
-        {
-            var ele  = input.checkValidity();
-            if(ele)
-            {
+        function validate(input) {
+            var ele = input.checkValidity();
+            if (ele) {
                 input.parentNode.parentNode.getElementsByClassName('next')[0].classList.add('OKShow');
             }
-            else{
+            else {
                 input.parentNode.parentNode.getElementsByClassName('next')[0].classList.remove('OKShow');
             }
         }
 
-        function nextRow(button,event)
-        {
-            if(button.id != "submitBtn")
-            {
+        function nextRow(button, event) {
+            if (button.id != "submitBtn") {
                 event.preventDefault();
                 button.parentNode.parentNode.classList.remove('showRow');
                 button.parentNode.parentNode.nextElementSibling.classList.add('showRow');
             }
-            else
-            {
+            else {
                 document.getElementById("form").submit();
             }
         }
-        document.onload = function()
-        {
+        document.onload = function () {
             username = document.getElementById("username").value = ""
             document.getElementById("psw").value = "";
-        }        
-        $("#submitBtn").on('click',function(event)
-        {
+        }
+        $("#submitBtn").on('click', function (event) {
             var username = document.getElementById("username").value;
             var password = document.getElementById("psw").value;
-            
-            if(username.trim() && password.trim())
-            {
+
+            if (username.trim() && password.trim()) {
                 $('#form').submit();
             }
-            else
-            {
+            else {
                 alert("Enter the same password");
                 return false;
             }
         });
     </script>
 </body>
+
 </html>

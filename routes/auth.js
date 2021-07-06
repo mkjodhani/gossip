@@ -1,17 +1,8 @@
-async function Authenticate(req,res,next)
-{
-    console.log("----------------------------------------------------------------------------------------------");
-    console.log();
-    console.log("----------------------------------------------------------------------------------------------");
-    if(req.session.username)
-    {
-        console.log("Authorized..."+req.session.username);
-        next();
-    }
-    else
-    {
-        res.redirect('login.html');
-        console.log("Not authorized...");
-    }
-} 
-module.exports = Authenticate
+async function Authenticate(req, res, next) {
+  if (req.session.username) {
+    next();
+  } else {
+    res.redirect("login.html");
+  }
+}
+module.exports = Authenticate;

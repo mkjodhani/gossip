@@ -167,10 +167,21 @@ const friendSchema = new Schema({
     timestamps:true
 });
     
-
+const statusSchema = new Schema({
+    username:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    status:{
+        type:String,
+        required:true,
+    }
+});
 exports.Users = mongoose.model('User',userSchema);
 exports.Sockets = mongoose.model('Socket',socketSchema);
 exports.Messages = mongoose.model('Message',messageSchema);
 exports.Chats = mongoose.model('Chat',chatSchema);
 exports.Histories = mongoose.model('History',historySchema);
 exports.Friends = mongoose.model('friend',friendSchema);
+exports.Status = mongoose.model('Status',statusSchema);

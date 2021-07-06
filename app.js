@@ -9,7 +9,7 @@ const io = new Server(server);
 // const FileStore = require('session-file-store')(session)
 const hostname = "localhost"
 const port = 6563;
-const {Users,Sockets,Messages,Chats,Histories,Friends}  = require('./models/models')
+const {Users,Sockets,Messages,Chats,Histories,Friends,Status}  = require('./models/models')
 const usersRouter = require('./routes/users') 
 const Authenticate = require('./routes/auth');
 app.use(morgan('tiny'));
@@ -18,18 +18,25 @@ app.use(express.static(__dirname+ "/public"))
 io.on('connect',(socket) =>
 {
 
-    socket.on('disconnect',()=>
+    socket.on('disconnect',async ()=>
     {
+        const user = await Sockets.findOneAndUpdate({"socketID":socket.id})
         Sockets.findOneAndUpdate({"socketID":socket.id},
         {
             $set:{socketID:"None",active:false}
         },{new:true})
-        .then(result =>
+        .then(async (result) =>
         {
             socket.broadcast.emit('receiveStatus',{
-                username:result.username,
+                username:user.username,
                 changedStatus:"offline"
             });
+            await Status.findOneAndUpdate({username:user.username},{
+                $set:{
+                    status:'offline'
+                }
+            });
+            console.log(user.username + " disconnecting....");
         })
         .catch(err => console.log(err));
     });
@@ -40,23 +47,37 @@ io.on('connect',(socket) =>
         })
         socket.broadcast.emit('receiveStatus',{
             username:user,
-            changedStatus:"online"
+            status:"online"
         });
-        
-        (async function(){
-            var friendList = await Friends.findOne({"username":user});
-            var requestList = await Friends.findOne({"username":user});
-            var userInfo =  await Users.findOne({"username":user});
-            var peopleList =await Users.find({});
-            peopleList = await  peopleList.map(person => person.username).filter(p => [...friendList.friends].indexOf(p) == -1 && p != user);
-            if(friendList)
-            {
-                socket.emit('makeGUI',userInfo);
-                socket.emit('receiveContacts',friendList.friends);
-                socket.emit('receiveRequests',requestList.requests);
-                socket.emit('receivePeople',peopleList);
+        await Status.findOneAndUpdate({username:user},{
+            $set:{
+                status:'online'
             }
-        })();
+        });
+        var friendList = await Friends.findOne({"username":user});
+        var requestList = await Friends.findOne({"username":user});
+        var userInfo =  await Users.findOne({"username":user});
+        var peopleList =await Users.find({});
+        peopleList = await  peopleList.map(person => person.username).filter(p => [...friendList.friends].indexOf(p) == -1 && p != user);
+        if(friendList)
+        {
+            socket.emit('makeGUI',userInfo);
+            socket.emit('receiveContacts',friendList.friends);
+            socket.emit('receiveRequests',requestList.requests);
+            socket.emit('receivePeople',peopleList);
+        }
+        var friendSockets = await Sockets.find({username:{$in:friendList.friends}}).select({socketID:1});
+        var friendStatus = await Status.find({username:{$in:friendList.friends}});
+        friendStatus.map(status =>{
+            socket.emit('receiveStatus',status);
+        })
+        for(socketId in friendSockets)
+        {
+            socket.broadcast.emit('receiveStatus',{
+                username:user,
+                status:"online"
+            });
+        }
     });
     socket.on('sendMessage', async (message) =>
     {
@@ -103,13 +124,21 @@ io.on('connect',(socket) =>
         await chatFrom.save();
         await historyTo.save();
         await historyFrom.save();
-        
-        socket.broadcast.emit('receiveMessage',message);
+        const res = await Sockets.findOne({username:message.to}).select({socketID:1});
+        if(res.socketID != "None")
+            io.to(res.socketID).emit('receiveMessage',message);
+        // socket.broadcast.emit('receiveMessage',message);
     })
     
-    socket.on('sendStatus',(status)=>
+    socket.on('sendStatus',async (status)=>
     {
+        
         socket.broadcast.emit('receiveStatus',status);
+        await Status.findOneAndUpdate({username:status.username},{
+            $set:{
+                status:status.status
+            }
+        });
     });
     socket.on('sendReq',frndReqest=>{
 
@@ -140,24 +169,24 @@ io.on('connect',(socket) =>
             friends:frndReqest.to
             }
         },{new:true});
-        Friends.findOneAndUpdate({"username":frndReqest.to},{
+        await Friends.findOneAndUpdate({"username":frndReqest.to},{
             $addToSet:{
             friends:frndReqest.from
             }
-        },{new:true})
-        .then(result=>
-        {
+        },{new:true});
+        // .then(result=>
+        // {
             // Add person to the conatact list of both parties...
-            Sockets.findOne({username:frndReqest.to}).select({socketID:1}).then(res=>{
-                if(res.socketID != "None")
-                    io.to(res.socketID).emit('receiveContacts',[frndReqest.from]);
-            });
-            
-            Sockets.findOne({username:frndReqest.from}).select({socketID:1}).then(res=>{
-                if(res.socketID != "None")
-                    io.to(res.socketID).emit('receiveContacts',[frndReqest.to]);
-            });
+        Sockets.findOne({username:frndReqest.to}).select({socketID:1}).then(res=>{
+            if(res.socketID != "None")
+                io.to(res.socketID).emit('receiveContacts',[frndReqest.from]);
         });
+        
+        Sockets.findOne({username:frndReqest.from}).select({socketID:1}).then(res=>{
+            if(res.socketID != "None")
+                io.to(res.socketID).emit('receiveContacts',[frndReqest.to]);
+        });
+        // });
     });
 })
 

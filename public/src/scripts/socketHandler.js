@@ -1,22 +1,25 @@
 var socket = new io();
-
 socket.on('makeGUI',(userInfo) =>
 {
-    var {username,firstName,lastName,profilePic}  = userInfo;
-    document.getElementById('myname').textContent = firstName +" "+ lastName;
-    document.getElementById('myusername').textContent = username;
-    document.getElementById('statusBorder').src = profilePic;
+    makeProfile(userInfo);
 });
 socket.on('receiveMessage',(message) =>
 {
-    addMessage(message,'received');
+    if(fetchedHistory[message.from]){
+        fetchedHistory[message.from].messages.push(message);
+        addMessage(message,'received');
+    }
+    else{
+        const contact = document.getElementById(message.from +"_Contact");
+        contact.style.backgroundColor = 'green'    
+    }
 });
 socket.on('receiveStatus',(data) =>
 {
     var usr = data.username;
     var ele = document.getElementById(usr+"_Status");
     if(ele){
-        ele.classList.replace(ele.classList[1],data.changedStatus);
+        ele.classList.replace(ele.classList[1],data.status);
     }
 })
 socket.on('receiveContacts',(data) => 
@@ -42,9 +45,7 @@ socket.on('receivePeople',data=>{
 
 socket.on('recieveHistory',chat=>{
     const me = document.getElementById('myusername').innerHTML;
-    for(index in chat.messages){
-        const type = me === chat.messages[index].from?'sent':'received';
-        addMessage(chat.messages[index],type);
-    }
+    InsertsChat(chat,me);
+    fetchedHistory[me === chat.user?chat.friend:chat.user] = chat;
 })
 

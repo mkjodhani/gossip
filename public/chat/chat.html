@@ -1,16 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gossip</title>
     <link rel="stylesheet" href="/src/css/index.css">
+    <script>
+        const fetchedHistory = {};
+    </script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="/src/scripts/makeGUI.js"></script>
     <script src="/src/scripts/socketHandler.js"></script>
 </head>
+
 <body>
     <div class="requests" id="requests">
         <div class="searchBar">
@@ -43,46 +48,46 @@
             -->
         </div>
     </div>
-    
+
     <main>
         <nav>
-            <div class="profile">
-                <div class="leftProfile">
+            <div class="profile" id="profile">
+                <!-- <div class="leftProfile">
                     <div class="profilePic">
-                        <img src="/src/img/friend-request.png" alt="" width="50px" height="50px" class="busyBorder" id="statusBorder">
+                        <img src="/src/img/friend-request.png" alt="" width="50px" height="50px" class="busyBorder"
+                            id="statusBorder">
                     </div>
                     <div class="username">
                         <h3 style="color: aliceblue;" id="myname">Mayur Jodhani</h3>
                         <p style="display: none;" id="myusername"></p>
-                        <!-- <a href="#"><p style="color: aliceblue;">Edit</p></a> -->
-                    </div> 
+                         <a href="#"><p style="color: aliceblue;">Edit</p></a> 
+                    </div>
                 </div>
                 <div class="rightProfile">
                     <div class="tray">
-                        <img src="/src/img/down-arrow.svg" alt="" width="20px" height="20px" class="arrow" id="downArrow" onclick="showTypes(this)">
-                    </div>
-                </div>
+                        <img src="/src/img/down-arrow.svg" alt="" width="20px" height="20px" class="arrow"
+                            id="downArrow" onclick="showTypes(this)">
+                    </div>-->
             </div>
             <div class="statusTypes" id="typeBox">
-                <div class="type"  onclick="setStatus(`online`)">
+                <div class="type" onclick="setStatus(`online`)">
                     <h1 class="Status online"></h1>
                     <p>Online</p>
                 </div>
-                <div class="type"  onclick="setStatus(`offline`)">
+                <div class="type" onclick="setStatus(`offline`)">
                     <h1 class="Status offline"></h1>
-                    <p>Offline</p></div>
-                <div class="type"  onclick="setStatus(`busy`)">
+                    <p>Offline</p>
+                </div>
+                <div class="type" onclick="setStatus(`busy`)">
                     <h1 class="Status busy"></h1>
                     </span>
-                    <p>Busy</p></div>
-                <div class="type"  onclick="setStatus(`away`)">
+                    <p>Busy</p>
+                </div>
+                <div class="type" onclick="setStatus(`away`)">
                     <h1 class="Status away"></h1>
-                    <p>Away</p></div>
+                    <p>Away</p>
+                </div>
             </div>
-            <!-- <div class="serachLine">
-                <img src="/src/img/search.png" alt="" width="30px" height="30px">
-                <input type="text" placeholder="search contacts..." class="searchText">
-            </div> -->
             <div class="contacts" id="contacts">
                 <!--
                 <div class="contact" id="mkjodhani_Contact" onclick="changeChat(`Krushit`)">
@@ -117,26 +122,23 @@
         </section>
     </main>
     <script>
-        var username ;
-        window.onclose = ()=>{
-            socket.emit('disconnect',username);
+        var username;
+        window.onclose = () => {
+            socket.emit('disconnect', username);
         }
-        window.onload = ()=>
-        {
+        window.onload = () => {
             username = getCoockie('username');
-            socket.emit('newLogin',username);
+            socket.emit('newLogin', username);
         }
-        function getCoockie(name)
-        {
+        function getCoockie(name) {
             var list = document.cookie.split(';');
-            for(var i in list)
-            {
-                if(list[i].split("=")[0].trim() === name)
-                {
+            for (var i in list) {
+                if (list[i].split("=")[0].trim() === name) {
                     return list[i].split("=")[1];
                 }
-            }   
+            }
         }
-</script>
+    </script>
 </body>
+
 </html>
