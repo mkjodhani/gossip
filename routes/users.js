@@ -9,8 +9,7 @@ const bodyParser = require("body-parser");
 const {
     Users,
     Sockets,
-    Messages,
-    Chats,
+    Status,
     Histories,
     Friends,
 } = require("../models/models");
@@ -52,6 +51,7 @@ async function provideResources(username) {
         socketID: "None",
         active: true,
     }).save();
+    const status = await Status({username:username,status:"offline"}).save();
 }
 
 async function createUser(data) {
